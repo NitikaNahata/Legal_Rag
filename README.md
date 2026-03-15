@@ -88,16 +88,36 @@ Result: ~1.16 batches/sec → **~10 minutes total** (25× faster).
 | `contractnli/` | 95 NDA .txt files |
 | `privacy_qa/` | 7 privacy policy .txt files |
 
+> **Note:** `chroma_db/`, `bm25_index/`, and the corpus `.txt` directories are excluded from this repo (see `.gitignore`).
+> Download the datasets below and run `python ingest.py` to rebuild them.
+
+---
+
+## Datasets
+
+| Dataset | Source | Description |
+|---|---|---|
+| CUAD | [HuggingFace — cuad](https://huggingface.co/datasets/cuad) | 510 commercial contracts, 41 clause-type labels |
+| MAUD | [HuggingFace — theatticusproject/maud](https://huggingface.co/datasets/theatticusproject/maud) | 152 M&A merger agreements with clause annotations |
+| ContractNLI | [Stanford NLP — ContractNLI](https://stanfordnlp.github.io/contract-nli/) | 607 NDAs with natural language inference labels |
+| PrivacyQA | [GitHub — AbhilashaRavichander/PrivacyQA_EMNLP](https://github.com/AbhilashaRavichander/PrivacyQA_EMNLP) | Privacy policy QA with expert annotations |
+
+Place the extracted `.txt` files under `cuad/`, `maud/`, `contractnli/`, and `privacy_qa/` respectively, then run `python ingest.py`.
+
 ---
 
 ## Running
 
 ```bash
-# Re-ingest (only needed if corpus changes)
+# Re-ingest (only needed if corpus changes or first setup)
 python ingest.py
 
 # Start the QA chatbot
 python retrieve.py
 ```
 
-Requires Ollama running locally with `llama3.1:8b` pulled.
+Requires [Ollama](https://ollama.com) running locally with `gemma3:12b` pulled:
+
+```bash
+ollama pull gemma3:12b
+```
