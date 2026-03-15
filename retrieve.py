@@ -310,14 +310,10 @@ def retrieve_and_answer(query, embedder, collection, bm25, bm25_texts,
     d_ids = [m["chunk_id"] for m in dense_res["metadatas"][0]]
     timings["dense"] = round(time.time() - t0, 3)
 
-    print(f"  BM25 top-3 scores : {[round(bm25_scores[i],2) for i in b_top[:3]]}")
-    print(f"  Dense top-3 dist  : {[round(d,3) for d in collection.query(query_embeddings=[q_emb], n_results=3, include=['distances'])['distances'][0]]}")
-
     # 3. Weighted RRF -> pool
     rrf_ids   = weighted_rrf(b_ids, d_ids)[:RRF_POOL]
     rrf_metas = [id_to_meta[c] for c in rrf_ids if c in id_to_meta]
     rrf_texts = [id_to_text[c] for c in rrf_ids if c in id_to_text]
-    print(f"  RRF pool          : {len(rrf_metas)} chunks (BM25:{RRF_W_BM25} Dense:{RRF_W_DENSE})")
 
     # 4. Reranker
     t0 = time.time()
@@ -326,7 +322,6 @@ def retrieve_and_answer(query, embedder, collection, bm25, bm25_texts,
     top_docs  = [r[1] for r in ranked]
     top_metas = [r[2] for r in ranked]
     timings["rerank"] = round(time.time() - t0, 3)
-    print(f"  Rerank top-5      : {[round(float(r[0]),3) for r in ranked]}")
 
     # 5. Build context and call LLM
     context   = build_context(top_docs, top_metas)

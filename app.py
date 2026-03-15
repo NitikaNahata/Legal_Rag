@@ -271,8 +271,7 @@ def render_turn(turn: dict):
     if timings:
         timing_html = f"""
         <div style="margin-top:0.6rem; font-size:0.72rem; color:#4a5060; border-top:1px solid #1e2230; padding-top:0.5rem;">
-          ⏱ BM25 {timings.get('bm25','-')}s &nbsp;·&nbsp;
-          Dense {timings.get('dense','-')}s &nbsp;·&nbsp;
+          ⏱ Retrieval {round((timings.get('bm25',0) + timings.get('dense',0)),3)}s &nbsp;·&nbsp;
           Rerank {timings.get('rerank','-')}s &nbsp;·&nbsp;
           LLM {timings.get('llm','-')}s &nbsp;·&nbsp;
           <strong style="color:#6a7080;">Total {timings.get('total','-')}s</strong>
