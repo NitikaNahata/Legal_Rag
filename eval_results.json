@@ -1,0 +1,100 @@
+{
+  "config": {
+    "top_k": 10,
+    "rerank_pool": 20,
+    "n_questions": 50,
+    "seed": 42,
+    "rrf_w_bm25": 1,
+    "rrf_w_dense": 2
+  },
+  "overall": {
+    "BM25 only": {
+      "Recall@10": 0.2233,
+      "Precision@10": 0.028,
+      "MRR@10": 0.083
+    },
+    "Dense only": {
+      "Recall@10": 0.3233,
+      "Precision@10": 0.05,
+      "MRR@10": 0.1662
+    },
+    "Hybrid (2:1 D:B RRF)": {
+      "Recall@10": 0.3167,
+      "Precision@10": 0.046,
+      "MRR@10": 0.1333
+    },
+    "Hybrid + Reranker": {
+      "Recall@10": 0.3433,
+      "Precision@10": 0.052,
+      "MRR@10": 0.1769
+    }
+  },
+  "per_dataset": {
+    "contractnli": {
+      "BM25 only": {
+        "Recall@10": 0.0,
+        "Precision@10": 0.0,
+        "MRR@10": 0.0
+      },
+      "Dense only": {
+        "Recall@10": 0.0938,
+        "Precision@10": 0.0188,
+        "MRR@10": 0.1312
+      },
+      "Hybrid (2:1 D:B RRF)": {
+        "Recall@10": 0.0938,
+        "Precision@10": 0.0188,
+        "MRR@10": 0.0583
+      },
+      "Hybrid + Reranker": {
+        "Recall@10": 0.1562,
+        "Precision@10": 0.025,
+        "MRR@10": 0.1152
+      }
+    },
+    "cuad": {
+      "BM25 only": {
+        "Recall@10": 0.349,
+        "Precision@10": 0.0438,
+        "MRR@10": 0.1297
+      },
+      "Dense only": {
+        "Recall@10": 0.4115,
+        "Precision@10": 0.0594,
+        "MRR@10": 0.1523
+      },
+      "Hybrid (2:1 D:B RRF)": {
+        "Recall@10": 0.401,
+        "Precision@10": 0.0531,
+        "MRR@10": 0.1427
+      },
+      "Hybrid + Reranker": {
+        "Recall@10": 0.4115,
+        "Precision@10": 0.0594,
+        "MRR@10": 0.1563
+      }
+    },
+    "privacy_qa": {
+      "BM25 only": {
+        "Recall@10": 0.0,
+        "Precision@10": 0.0,
+        "MRR@10": 0.0
+      },
+      "Dense only": {
+        "Recall@10": 0.75,
+        "Precision@10": 0.15,
+        "MRR@10": 0.6667
+      },
+      "Hybrid (2:1 D:B RRF)": {
+        "Recall@10": 0.75,
+        "Precision@10": 0.15,
+        "MRR@10": 0.5833
+      },
+      "Hybrid + Reranker": {
+        "Recall@10": 0.75,
+        "Precision@10": 0.15,
+        "MRR@10": 1.0
+      }
+    }
+  }
+}

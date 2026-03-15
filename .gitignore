@@ -1,0 +1,23 @@
+# Generated vector stores (re-create with ingest.py)
+chroma_db/
+bm25_index/
+
+# Raw corpus txt files (large, dataset-specific)
+cuad/
+maud/
+contractnli/
+privacy_qa/
+
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+.venv/
+venv/
+env/
+
+# Logs
+*.log
+
+# Model cache
+.cache/
