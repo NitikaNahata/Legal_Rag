@@ -267,15 +267,6 @@ def render_turn(turn: dict):
             '<span class="badge-no">✦ Insufficient sources</span>'
 
     timings = result.get("timings", {})
-    timing_html = ""
-    if timings:
-        timing_html = f"""
-        <div style="margin-top:0.6rem; font-size:0.72rem; color:#4a5060; border-top:1px solid #1e2230; padding-top:0.5rem;">
-          ⏱ Retrieval {round((timings.get('bm25',0) + timings.get('dense',0)),3)}s &nbsp;·&nbsp;
-          Rerank {timings.get('rerank','-')}s &nbsp;·&nbsp;
-          LLM {timings.get('llm','-')}s &nbsp;·&nbsp;
-          <strong style="color:#6a7080;">Total {timings.get('total','-')}s</strong>
-        </div>"""
 
     # Source cards HTML
     sources_html = ""
@@ -317,8 +308,11 @@ def render_turn(turn: dict):
       {sources_html}
       {faith_html}
       <div style="margin-top:0.6rem">{badge}</div>
-      {timing_html}
     </div>""", unsafe_allow_html=True)
+
+    if timings:
+        retrieval = round(timings.get('bm25', 0) + timings.get('dense', 0), 3)
+        st.caption(f"⏱ Retrieval {retrieval}s · Rerank {timings.get('rerank','-')}s · LLM {timings.get('llm','-')}s · **Total {timings.get('total','-')}s**")
 
 
 # ── Sidebar ───────────────────────────────────────────────────────────────────
@@ -339,7 +333,7 @@ def render_sidebar(collection_count: int, bm25_count: int):
           <div class="sidebar-title">Pipeline</div>
           <div>Embed: BGE-base-en-v1.5</div>
           <div>Rerank: MiniLM-L6</div>
-          <div>LLM: {OLLAMA_MODEL}</div>
+          <div>LLM: {OLLAMA_MODEL} (4.9GB)</div>
           <div>Device: {DEVICE.upper()}</div>
         </div>
         <div class="sidebar-section">

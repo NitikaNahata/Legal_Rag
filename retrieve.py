@@ -40,7 +40,7 @@ DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
 
 EMBED_MODEL  = "BAAI/bge-base-en-v1.5"
 RERANK_MODEL = "cross-encoder/ms-marco-MiniLM-L-6-v2"
-OLLAMA_MODEL = "gemma3:12b"
+OLLAMA_MODEL = "llama3.1:8b"
 
 RETRIEVAL_TOP_K = 20   # BM25 + Dense each fetch this many
 RRF_POOL        = 15   # RRF merged pool fed to reranker
