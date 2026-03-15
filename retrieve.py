@@ -286,22 +286,29 @@ def call_llm_with_retry(query: str, context: str, n_sources: int,
 
 def retrieve_and_answer(query, embedder, collection, bm25, bm25_texts,
                         bm25_metas, reranker, llm):
+    import time
+    t_total = time.time()
+    timings = {}
 
     id_to_text = {m["chunk_id"]: bm25_texts[i] for i, m in enumerate(bm25_metas)}
     id_to_meta = {m["chunk_id"]: m for m in bm25_metas}
 
     # 1. BM25
+    t0 = time.time()
     bm25_scores = bm25.get_scores(bm25_tokenize(query))
     b_top = np.argsort(bm25_scores)[::-1][:RETRIEVAL_TOP_K]
     b_ids = [bm25_metas[i]["chunk_id"] for i in b_top]
+    timings["bm25"] = round(time.time() - t0, 3)
 
     # 2. Dense
+    t0 = time.time()
     q_emb = embedder.encode([query], normalize_embeddings=True)[0].tolist()
     dense_res = collection.query(
         query_embeddings=[q_emb], n_results=RETRIEVAL_TOP_K,
         include=["metadatas"]
     )
     d_ids = [m["chunk_id"] for m in dense_res["metadatas"][0]]
+    timings["dense"] = round(time.time() - t0, 3)
 
     print(f"  BM25 top-3 scores : {[round(bm25_scores[i],2) for i in b_top[:3]]}")
     print(f"  Dense top-3 dist  : {[round(d,3) for d in collection.query(query_embeddings=[q_emb], n_results=3, include=['distances'])['distances'][0]]}")
@@ -313,10 +320,12 @@ def retrieve_and_answer(query, embedder, collection, bm25, bm25_texts,
     print(f"  RRF pool          : {len(rrf_metas)} chunks (BM25:{RRF_W_BM25} Dense:{RRF_W_DENSE})")
 
     # 4. Reranker
+    t0 = time.time()
     scores  = reranker.predict([[query, t] for t in rrf_texts])
     ranked  = sorted(zip(scores, rrf_texts, rrf_metas), key=lambda x: x[0], reverse=True)[:FINAL_TOP_N]
     top_docs  = [r[1] for r in ranked]
     top_metas = [r[2] for r in ranked]
+    timings["rerank"] = round(time.time() - t0, 3)
     print(f"  Rerank top-5      : {[round(float(r[0]),3) for r in ranked]}")
 
     # 5. Build context and call LLM
@@ -324,15 +333,20 @@ def retrieve_and_answer(query, embedder, collection, bm25, bm25_texts,
     n_sources = len(top_docs)
     print(f"  Calling {OLLAMA_MODEL}...")
 
+    t0 = time.time()
     answer, cited_nums, attempts = call_llm_with_retry(query, context, n_sources, llm)
+    timings["llm"] = round(time.time() - t0, 3)
 
     if attempts > 1:
         print(f"  LLM required {attempts} attempt(s)")
 
+    timings["total"] = round(time.time() - t_total, 3)
+    print(f"  Timings: BM25={timings['bm25']}s  Dense={timings['dense']}s  Rerank={timings['rerank']}s  LLM={timings['llm']}s  Total={timings['total']}s")
+
     refusal = "The provided documents do not contain sufficient information to answer this question."
     if not answer or "does not contain sufficient information" in answer or not cited_nums:
         return {"answer": refusal, "sources": [], "supported": False,
-                "faithfulness_warnings": []}
+                "faithfulness_warnings": [], "timings": timings}
 
     # 6. Faithfulness check
     faith_warnings = check_faithfulness(answer, top_docs, top_metas, reranker)
@@ -353,10 +367,11 @@ def retrieve_and_answer(query, embedder, collection, bm25, bm25_texts,
             })
 
     return {
-        "answer":               answer,
-        "sources":              sources,
-        "supported":            True,
+        "answer":                answer,
+        "sources":               sources,
+        "supported":             True,
         "faithfulness_warnings": faith_warnings,
+        "timings":               timings,
     }
 
 
